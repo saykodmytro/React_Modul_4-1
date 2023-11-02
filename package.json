@@ -1,8 +1,8 @@
 {
-  "name": "React-Modul_3-2",
+  "name": "React-Modul_4-1",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://saykodmytro.github.io/React_Modul_3-2/",
+  "homepage": "https://saykodmytro.github.io/React_Modul_4-1/",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.3",
     "@testing-library/react": "^12.1.4",

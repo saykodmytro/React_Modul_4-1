@@ -17,6 +17,7 @@ export class App extends Component {
   };
 
   componentDidMount() {
+    console.log('hello');
     const stringifiedProducts = localStorage.getItem('products');
     const parsedProducts = JSON.parse(stringifiedProducts) ?? productsData;
 
