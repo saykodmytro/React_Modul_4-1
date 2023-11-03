@@ -1,5 +1,5 @@
 import { TitleComponent } from './Title/Title';
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 import { Product } from './Product/Product';
 import { productsData } from 'Data/productsData';
 import css from './App.module.css';
@@ -8,30 +8,23 @@ import Modal from './Modal/Modal';
 import ProductForm from './ProductForm/ProductForm';
 import { nanoid } from 'nanoid';
 
-export class App extends Component {
-  state = {
-    counterValue: 0,
-    products: productsData,
-    isOpenModal: false,
-    modalData: null,
-  };
-
-  componentDidMount() {
+export const App = () => {
+  const [products, setProducts] = useState(() => {
     const stringifiedProducts = localStorage.getItem('products');
     const parsedProducts = JSON.parse(stringifiedProducts) ?? productsData;
+    return parsedProducts;
+  });
 
-    this.setState({ products: parsedProducts });
-  }
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [modalData, setModalData] = useState(null);
 
-  componentDidUpdate(_, prevState) {
-    if (prevState.products !== this.state.products) {
-      const stringifiedProducts = JSON.stringify(this.state.products);
-      localStorage.setItem('products', stringifiedProducts);
-    }
-  }
+  useEffect(() => {
+    const stringifiedProducts = JSON.stringify(this.state.products);
+    localStorage.setItem('products', stringifiedProducts);
+  }, [products]);
 
-  handleAddProduct = productData => {
-    const hasDuplicates = this.state.products.some(
+  const handleAddProduct = productData => {
+    const hasDuplicates = products.some(
       product => product.title === productData.title
     );
     if (hasDuplicates) {
@@ -45,69 +38,58 @@ export class App extends Component {
       id: nanoid(),
     };
 
-    this.setState({
-      products: [...this.state.products, finalProduct],
-    });
+    // setProducts(prevState => {[...prevState, finalProduct]});
+    setProducts([finalProduct, ...products]);
   };
-  hendleDeleteProduct = productId => {
-    console.log('productId:', productId);
-    this.setState({
-      products: this.state.products.filter(product => product.id !== productId),
-    });
-  };
+  const hendleDeleteProduct = productId => {
+    // this.setState({
+    //   products: this.state.products.filter(product => product.id !== productId),
+    // });
 
-  openModal = someDataToModal => {
-    this.setState({
-      isOpenModal: true,
-      modalData: someDataToModal,
-    });
+    setProducts(products.filter(product => product.id !== productId));
   };
 
-  closeModal = () => {
-    this.setState({
-      isOpenModal: false,
-      modalData: null,
-    });
+  const openModal = someDataToModal => {
+    setIsOpenModal(true);
+    setModalData(someDataToModal);
   };
 
-  render() {
-    const sortedProducts = [...this.state.products].sort(
-      (a, b) => a.price - b.price
-    );
-    return (
-      <div>
-        <Section>
-          <TitleComponent />
-        </Section>
-        <Section>
-          <ProductForm handleAddProduct={this.handleAddProduct} />
-        </Section>
+  const closeModal = () => {
+    setIsOpenModal(false);
+    setModalData(null);
+  };
 
-        <Section title="Product List">
-          <div className={css.productList}>
-            {sortedProducts.map(({ id, title, price, discount }) => {
-              return (
-                <Product
-                  key={id}
-                  id={id}
-                  title={title}
-                  price={price}
-                  discount={discount}
-                  hendleDeleteProduct={this.hendleDeleteProduct}
-                  openModal={this.openModal}
-                />
-              );
-            })}
-          </div>
-        </Section>
+  const sortedProducts = [...this.state.products].sort(
+    (a, b) => a.price - b.price
+  );
+  return (
+    <div>
+      <Section>
+        <TitleComponent />
+      </Section>
+      <Section>
+        <ProductForm handleAddProduct={handleAddProduct} />
+      </Section>
 
-        {this.state.isOpenModal && (
-          <Modal
-            closeModal={this.closeModal}
-            modalData={this.state.modalData}
-          />
-        )}
-      </div>
-    );
-  }
-}
+      <Section title="Product List">
+        <div className={css.productList}>
+          {sortedProducts.map(({ id, title, price, discount }) => {
+            return (
+              <Product
+                key={id}
+                id={id}
+                title={title}
+                price={price}
+                discount={discount}
+                hendleDeleteProduct={hendleDeleteProduct}
+                openModal={openModal}
+              />
+            );
+          })}
+        </div>
+      </Section>
+
+      {isOpenModal && <Modal closeModal={closeModal} modalData={modalData} />}
+    </div>
+  );
+};
