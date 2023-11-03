@@ -64,6 +64,8 @@ const Modal = ({ modalData, closeModal }) => {
     }
   };
 
+  console.log('Test Dima');
+
   return (
     <div onClick={handleOverlayClick} className={css.modalContainer}>
       <div className={css.modalWindow}>
